@@ -245,7 +245,7 @@ func (k *Kazaam) TransformInPlace(data []byte) ([]byte, error) {
 			initConverters(specObj.ConvertersConfig)
 		}
 
-		if specObj.Config != nil && specObj.Over != nil {
+		if specObj.Over != nil {
 			var transformedDataList [][]byte
 			_, err = jsonparser.ArrayEach(data, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
 				transformedDataList = append(transformedDataList, transform.HandleUnquotedStrings(value, dataType))
@@ -297,8 +297,8 @@ func (k *Kazaam) TransformInPlace(data []byte) ([]byte, error) {
 }
 
 func (k *Kazaam) filter(transformedDataList [][]byte, overFilter string) (ret [][]byte, err error) {
-	ret = transformedDataList
-	for i, value := range ret {
+	ret = [][]byte{}
+	for _, value := range transformedDataList {
 		var expr *transform.BasicExpr
 		if expr, err = transform.NewBasicExpr(value, overFilter); err != nil {
 			return
@@ -306,8 +306,8 @@ func (k *Kazaam) filter(transformedDataList [][]byte, overFilter string) (ret []
 			var keep bool
 			if keep, err = expr.Eval(); err != nil {
 				return
-			} else if !keep {
-				ret = append(ret[:i], ret[i+1:]...)
+			} else if keep {
+				ret = append(ret, value)
 			}
 		}
 	}

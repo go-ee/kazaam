@@ -13,7 +13,7 @@ type spec struct {
 	*transform.Config
 	Operation        *string                 `json:"operation"`
 	Over             *string                 `json:"over,omitempty"`
-	OverFilter       *string                 `json:"filter,omitempty"`
+	OverFilter       *string                 `json:"overFilter,omitempty"`
 	ConvertersConfig *map[string]interface{} `json:"converters"`
 }
 
