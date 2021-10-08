@@ -253,6 +253,13 @@ func (k *Kazaam) TransformInPlace(data []byte) ([]byte, error) {
 			if err != nil {
 				return data, transformErrorType(err)
 			}
+
+			if specObj.OverFilter != nil {
+				if transformedDataList, err = k.filter(transformedDataList, *specObj.OverFilter); err != nil {
+					return data, transformErrorType(err)
+				}
+			}
+
 			for i, value := range transformedDataList {
 				x := make([]byte, len(value))
 				copy(x, value)
@@ -287,6 +294,24 @@ func (k *Kazaam) TransformInPlace(data []byte) ([]byte, error) {
 
 	}
 	return data, transformErrorType(err)
+}
+
+func (k *Kazaam) filter(transformedDataList [][]byte, overFilter string) (ret [][]byte, err error) {
+	ret = transformedDataList
+	for i, value := range ret {
+		var expr *transform.BasicExpr
+		if expr, err = transform.NewBasicExpr(value, overFilter); err != nil {
+			return
+		} else {
+			var keep bool
+			if keep, err = expr.Eval(); err != nil {
+				return
+			} else if !keep {
+				ret = append(ret[:i], ret[i+1:]...)
+			}
+		}
+	}
+	return
 }
 
 // TransformJSONStringToString loads the JSON string `data`, transforms
