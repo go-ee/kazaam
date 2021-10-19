@@ -238,8 +238,11 @@ func (k *Kazaam) TransformInPlace(data []byte) ([]byte, error) {
 		return data, nil
 	}
 
+	executionContext := &map[string]interface{}{}
 	var err error
 	for _, specObj := range k.specJSON {
+
+		specObj.ExecutionContext = executionContext
 
 		if specObj.ConvertersConfig != nil {
 			initConverters(specObj.ConvertersConfig)
@@ -292,6 +295,7 @@ func (k *Kazaam) TransformInPlace(data []byte) ([]byte, error) {
 			}
 		}
 
+		specObj.ExecutionContext = nil
 	}
 	return data, transformErrorType(err)
 }

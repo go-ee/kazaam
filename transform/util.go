@@ -242,9 +242,10 @@ func NewJSONValue(data []byte) (value *JSONValue, err error) {
 // Config contains the options that dictate the behavior of a transform. The internal
 // `spec` object can be an arbitrary json configuration for the transform.
 type Config struct {
-	Spec    *map[string]interface{} `json:"spec"`
-	Require bool                    `json:"require,omitempty"`
-	InPlace bool                    `json:"inplace,omitempty"`
+	Spec             *map[string]interface{} `json:"spec"`
+	Require          bool                    `json:"require,omitempty"`
+	InPlace          bool                    `json:"inplace,omitempty"`
+	ExecutionContext *map[string]interface{} `json:"-"`
 }
 
 // all it does is remove \ characters for now.

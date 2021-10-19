@@ -11,10 +11,18 @@ import (
 
 const testJSONInput = `{"rating":{"example":{"value":3},"primary":{"value":3}}}`
 
+func GetConfig(spec string, require bool) Config {
+	return getConfig(spec, require)
+}
+
 func getConfig(spec string, require bool) Config {
 	var f map[string]interface{}
 	json.Unmarshal([]byte(spec), &f)
 	return Config{Spec: &f, Require: require}
+}
+
+func GetTransformTestWrapper(tform func(spec *Config, data []byte) ([]byte, error), cfg Config, input string) ([]byte, error) {
+	return getTransformTestWrapper(tform, cfg, input)
 }
 
 func getTransformTestWrapper(tform func(spec *Config, data []byte) ([]byte, error), cfg Config, input string) ([]byte, error) {
@@ -23,6 +31,10 @@ func getTransformTestWrapper(tform func(spec *Config, data []byte) ([]byte, erro
 		return nil, e
 	}
 	return output, nil
+}
+
+func CheckJSONBytesEqual(item1, item2 []byte) (bool, error) {
+	return checkJSONBytesEqual(item1, item2)
 }
 
 func checkJSONBytesEqual(item1, item2 []byte) (bool, error) {
