@@ -245,7 +245,7 @@ type Config struct {
 	Spec             *map[string]interface{} `json:"spec"`
 	Require          bool                    `json:"require,omitempty"`
 	InPlace          bool                    `json:"inplace,omitempty"`
-	ExecutionContext *map[string]interface{} `json:"-"`
+	ExecutionContext map[string]interface{}  `json:"-"`
 }
 
 // all it does is remove \ characters for now.
@@ -755,4 +755,12 @@ func HandleUnquotedStrings(value []byte, dt jsonparser.ValueType) []byte {
 		value = bookend(tmp, '"', '"')
 	}
 	return value
+}
+
+func IsValid(data []byte, condition string) (ret bool, err error) {
+	var expr *BasicExpr
+	if expr, err = NewBasicExpr(data, condition); err == nil {
+		ret, err = expr.Eval()
+	}
+	return
 }

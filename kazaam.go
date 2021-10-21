@@ -238,7 +238,7 @@ func (k *Kazaam) TransformInPlace(data []byte) ([]byte, error) {
 		return data, nil
 	}
 
-	executionContext := &map[string]interface{}{}
+	executionContext := map[string]interface{}{}
 	var err error
 	for _, specObj := range k.specJSON {
 
@@ -305,14 +305,14 @@ func (k *Kazaam) filter(transformedDataList [][]byte, overFilter string) (ret []
 	for _, value := range transformedDataList {
 		var expr *transform.BasicExpr
 		if expr, err = transform.NewBasicExpr(value, overFilter); err != nil {
+			break
+		}
+
+		var keep bool
+		if keep, err = expr.Eval(); err != nil {
 			return
-		} else {
-			var keep bool
-			if keep, err = expr.Eval(); err != nil {
-				return
-			} else if keep {
-				ret = append(ret, value)
-			}
+		} else if keep {
+			ret = append(ret, value)
 		}
 	}
 	return
