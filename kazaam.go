@@ -242,9 +242,7 @@ func (k *Kazaam) TransformInPlace(data []byte) ([]byte, error) {
 	var err error
 	for _, specObj := range k.specJSON {
 
-		if specObj.Config != nil {
-			specObj.ExecutionContext = executionContext
-		}
+		transformConfig := k.buildTransformationConfigWithContext(specObj, executionContext)
 
 		if specObj.ConvertersConfig != nil {
 			initConverters(specObj.ConvertersConfig)
@@ -268,7 +266,7 @@ func (k *Kazaam) TransformInPlace(data []byte) ([]byte, error) {
 			for i, value := range transformedDataList {
 				x := make([]byte, len(value))
 				copy(x, value)
-				x, intErr := k.getTransform(&specObj)(specObj.Config, x)
+				x, intErr := k.getTransform(&specObj)(transformConfig, x)
 				if intErr != nil {
 					return data, transformErrorType(intErr)
 				}
@@ -291,17 +289,31 @@ func (k *Kazaam) TransformInPlace(data []byte) ([]byte, error) {
 			}
 
 		} else {
-			data, err = k.getTransform(&specObj)(specObj.Config, data)
+			data, err = k.getTransform(&specObj)(transformConfig, data)
 			if err != nil {
 				return data, transformErrorType(err)
 			}
 		}
 
 		if specObj.Config != nil {
-			specObj.ExecutionContext = nil
+			transformConfig.ExecutionContext = nil
 		}
 	}
 	return data, transformErrorType(err)
+}
+
+func (k *Kazaam) buildTransformationConfigWithContext(specObj spec, executionContext map[string]interface{}) *transform.Config {
+	transformConfig := specObj.Config
+
+	if specObj.Config != nil {
+		transformConfig = &transform.Config{
+			Spec:             specObj.Config.Spec,
+			Require:          specObj.Config.Require,
+			InPlace:          specObj.Config.InPlace,
+			ExecutionContext: executionContext,
+		}
+	}
+	return transformConfig
 }
 
 func (k *Kazaam) filter(transformedDataList [][]byte, overFilter string) (ret [][]byte, err error) {
