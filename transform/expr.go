@@ -71,6 +71,11 @@ func (expr *BasicExpr) evalBinaryExpr(exp *ast.BinaryExpr) (val constant.Value, 
 		return
 	}
 
+	if exp.Op == token.LAND && !constant.BoolVal(left) {
+		val = left
+		return
+	}
+
 	right, err = expr.evalExpr(exp.Y)
 	if err != nil {
 		return
@@ -149,7 +154,7 @@ func (expr *BasicExpr) evalExpr(exp ast.Expr) (val constant.Value, err error) {
 			val = constant.MakeBool(exp.Name == "true")
 			return
 		} else if exp.Name == "null" || exp.Name == "nil" {
-			val =  constant.MakeUnknown()
+			val = constant.MakeUnknown()
 			return
 		} else {
 			// assumed to be a json path variable -- without selector syntax, e.g top level prop
@@ -159,7 +164,7 @@ func (expr *BasicExpr) evalExpr(exp ast.Expr) (val constant.Value, err error) {
 	case *ast.SelectorExpr:
 		pos := exp.Pos()
 		end := exp.End()
-		path := expr.fullExpression[ pos-1 : end-1 ]
+		path := expr.fullExpression[pos-1 : end-1]
 		val, err = expr.evalJsonPath(path)
 		return
 	case *ast.BasicLit:
