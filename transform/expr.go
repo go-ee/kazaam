@@ -76,6 +76,11 @@ func (expr *BasicExpr) evalBinaryExpr(exp *ast.BinaryExpr) (val constant.Value, 
 		return
 	}
 
+	if exp.Op == token.LOR && constant.BoolVal(left) {
+		val = left
+		return
+	}
+
 	right, err = expr.evalExpr(exp.Y)
 	if err != nil {
 		return
